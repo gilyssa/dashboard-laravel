@@ -22,7 +22,7 @@ You're getting a multi-purpose tool for building complex apps.
 Soft UI Dashboard PRO Laravel at a glance:
 * 70 handcrafted UI components. From buttons and inputs to navbars and cards, everything is designed to create visually cohesive interfaces.  
 * 7 example pages to get you started
-* fully-functional authentication system, register and user profile editing features built with Laravel
+* fully-functional authentication system, register and Seu Perfil editing features built with Laravel
 * Documentation for each component so you can get started fast
 
 ## Free for personal and commercial projects
@@ -46,7 +46,7 @@ If you want to get more features, go PRO with [Soft UI Dashboard PRO Laravel](ht
 * [Register](#register)
 * [Forgot Password](#forgot-password)
 * [Reset Password](#reset-password)
-* [User Profile](#user-profile)
+* [Seu Perfil](#user-profile)
 * [Dashboard](#dashboard)
 * [File Structure](#file-structure)
 * [Browser Support](#browser-support)
@@ -207,7 +207,7 @@ The `App\Http\Controllers\ChangePasswordController` helps the user reset the pas
 ```
 
 ### My Profile
-The profile can be accessed by a logged in user by clicking "**User Profile**" from the sidebar or adding **/user-profile** in the url. The user can add information like birthday, gender, phone number, location, language  or skills.
+The profile can be accessed by a logged in user by clicking "**Seu Perfil**" from the sidebar or adding **/user-profile** in the url. The user can add information like birthday, gender, phone number, location, language  or skills.
 
 The `App\Http\Controllers\InfoUserController` handles the user's profile information.
 

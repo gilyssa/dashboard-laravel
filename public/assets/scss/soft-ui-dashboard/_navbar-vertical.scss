@@ -4,10 +4,6 @@
 
 .navbar-vertical {
   .navbar-brand > img,
-  .navbar-brand-img {
-    max-width: 100%;
-    max-height: 2rem;
-  }
   // Navbar navigaton
   .navbar-nav {
     // Navbar link
@@ -425,12 +421,6 @@
 }
 // Styles for minimized sidenav
 .navbar-vertical {
-  .navbar-brand {
-    .navbar-brand-img,
-    span {
-      @include transition($transition-base);
-    }
-  }
 
   .nav-item {
     .nav-link {

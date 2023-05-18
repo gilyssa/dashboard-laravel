@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('price_bands', function (Blueprint $table) {
             $table->id();
-            $table->float('value')->unique();
-            $table->boolean('status')->default(true);
+            $table->float('value')->nullable(false)->unique();
+            $table->boolean('status')->nullable(false)->default(true);
             $table->timestamps();
         });
     }

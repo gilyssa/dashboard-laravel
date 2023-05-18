@@ -11,7 +11,7 @@
               <div class="card card-plain mt-8">
                 <img src="{{ asset('assets\img\logo-complete.png') }}" width="80%" height="80%"">
                 <div class="card-header pb-0 text-left bg-transparent">
-                  <h3 style="color: #f84e04;">Bem Vindo de Volta!</h3>
+                  <h3 style="color: #f84e04;">Bem-Vindo de Volta!</h3>
                   <p class="mb-0">Insira seu email e senha para logar</p>
                 </div>
                 <div class="card-body">

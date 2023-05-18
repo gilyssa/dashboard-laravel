@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('deliverers', function (Blueprint $table) {
             $table->id();
-            $table->boolean('status')->default(true);
+            $table->string('name')->nullable(false)->unique();
+            $table->boolean('status')->nullable(false)->default(true);
+            $table->string('pix');
             $table->timestamps();
         });
     }

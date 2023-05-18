@@ -3,7 +3,7 @@
     <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute start-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
     <a class="align-items-center d-flex m-0 navbar-brand text-wrap" href="{{ route('dashboard') }}">
         <img src="../assets/img/logo-ct.png" class="navbar-brand-img h-100" alt="...">
-        <span class="ms-1 font-weight-bold">Soft UI Dashboard Laravel</span>
+        <span class="ms-1 font-weight-bold">Firmino Logística</span>
     </a>
   </div>
   <hr class="horizontal dark mt-0">
@@ -11,7 +11,7 @@
     <ul class="navbar-nav">
       <li class="nav-item">
         <a class="nav-link " href="{{ url('dashboard') }}">
-          <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center ms-2 d-flex align-items-center justify-content-center">
+          <div id="icone"  class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center ms-2 d-flex align-items-center justify-content-center">
             <svg width="12px" height="12px" viewBox="0 0 45 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
               <title>shop </title>
               <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -190,6 +190,11 @@
         </div>
       </div>
     </div>
-    <a class="btn bg-gradient-primary mt-4 w-100" href="https://www.creative-tim.com/product/soft-ui-dashboard-pro-laravel" target="_blank" type="button">Upgrade to pro</a>
   </div>
 </aside>
+
+<script>
+  document.getElementById('icone').addEventListener('click', function() {
+      this.style.color = '#f8ad29';
+  });
+</script>
