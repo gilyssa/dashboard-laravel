@@ -32,4 +32,4 @@ RUN php artisan config:cache \
     && php artisan view:cache
 
 # Execute o script de inicialização para iniciar o serviço do Nginx e do PHP-FPM
-CMD ["/start.sh"]
+CMD "/start.sh"
