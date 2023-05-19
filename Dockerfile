@@ -1,5 +1,8 @@
 FROM php:8.1-fpm
 
+# Defina o diretório de trabalho
+WORKDIR /var/www/html
+
 # Instale as dependências necessárias
 RUN apt-get update && apt-get install -y \
     nginx \
@@ -9,9 +12,6 @@ RUN apt-get update && apt-get install -y \
 
 # Configure o servidor web Nginx
 COPY nginx/default.conf /etc/nginx/conf.d/default.conf
-
-# Defina o diretório de trabalho
-WORKDIR /var/www/html
 
 # Configure a porta em que o servidor web Nginx irá escutar
 EXPOSE 80
