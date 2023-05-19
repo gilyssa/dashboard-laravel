@@ -17,6 +17,15 @@ COPY ./ /var/www/html
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
     && composer install --no-interaction --no-dev --prefer-dist --optimize-autoloader
 
+# Copie o arquivo de configuração do Nginx
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+
+# Copie o arquivo de script de inicialização
+COPY start.sh /start.sh
+
+# Defina permissões para o arquivo de script de inicialização
+RUN chmod +x /start.sh
+
 # Configure a porta em que o servidor web irá escutar
 EXPOSE 80
 
@@ -25,5 +34,5 @@ RUN php artisan config:cache \
     && php artisan route:cache \
     && php artisan view:cache
 
-# Execute o PHP-FPM para iniciar o servidor
-CMD php-fpm
+# Inicie o serviço do Nginx e do PHP-FPM usando o arquivo de script de inicialização
+CMD ["/start.sh"]
