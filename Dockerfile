@@ -14,11 +14,6 @@ COPY ./ /var/www/html
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
     && composer install --no-interaction --no-dev --prefer-dist --optimize-autoloader
 
-# Copie o arquivo de configuração do Nginx
-COPY nginx/default.conf /etc/nginx/conf.d/default.conf
-
-# Instale o Nginx
-RUN apk add --no-cache nginx
 # Execute os comandos para configurar o Laravel
 RUN php artisan config:cache \
     && php artisan route:cache \
@@ -26,7 +21,7 @@ RUN php artisan config:cache \
 
 
 # Configure a porta em que o servidor web irá escutar
-EXPOSE 80
+EXPOSE 9000
 
-# Execute o PHP-FPM e o Nginx
-CMD ["sh", "-c", "php-fpm & nginx -g 'daemon off;'"]
+# Execute o serviço PHP-FPM para iniciar o servidor
+CMD ["php-fpm"]
