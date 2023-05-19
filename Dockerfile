@@ -1,4 +1,4 @@
-FROM php:8.1-fpm
+FROM php:8.1-fpm-alpine
 
 # Defina o diretório de trabalho
 WORKDIR /var/www/html
