@@ -20,8 +20,5 @@ RUN php artisan config:cache \
     && php artisan view:cache
 
 
-# Configure a porta em que o servidor web irá escutar
-EXPOSE 9000
-
 # Execute o serviço PHP-FPM para iniciar o servidor
 CMD ["php-fpm"]
