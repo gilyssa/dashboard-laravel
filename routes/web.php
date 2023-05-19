@@ -69,7 +69,7 @@ Route::group(['middleware' => 'auth'], function () {
 
 	Route::get('/user-management', [InfoUserController::class, 'show']);
 	Route::get('/user-management-removed', [InfoUserController::class, 'showRemoved']);
-	Route::delete('/user-management/{id}', [InfoUserController::class, 'destroy'])->name('users.destroy');
+	Route::delete('/user-management/{id}', [InfoUserController::class, 'destroy'])->name('users.delete');
 	Route::post('/user-management/recover/{id}', [InfoUserController::class, 'recover'])->name('users.recover');
     
 	Route::get('/logout', [SessionsController::class, 'destroy']);
@@ -87,8 +87,8 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::post('/city-management-new', [CitiesController::class, 'store']);
 	Route::get('/city-management', [CitiesController::class, 'show']);
 	Route::get('/city-management-removed', [CitiesController::class, 'showRemoved']);
-	Route::delete('/city-management/{id}', [CitiesController::class, 'destroy'])->name('users.destroy');
-	Route::post('/city-management/recover/{id}', [CitiesController::class, 'recover'])->name('users.recover');
+	Route::delete('/city-management/{id}', [CitiesController::class, 'destroy']);
+	Route::post('/city-management/recover/{id}', [CitiesController::class, 'recover']);
 
 	Route::get('/priceband-management-register', [PriceBandsController::class, 'create']);
 	Route::get('/priceband-management-update/{id}', [PriceBandsController::class, 'update']);
@@ -96,8 +96,8 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::post('/priceband-management-new', [PriceBandsController::class, 'store']);
 	Route::get('/priceband-management', [PriceBandsController::class, 'show']);
 	Route::get('/priceband-management-removed', [PriceBandsController::class, 'showRemoved']);
-	Route::delete('/priceband-management/{id}', [PriceBandsController::class, 'destroy'])->name('pricebands.destroy');
-	Route::post('/priceband-management/recover/{id}', [PriceBandsController::class, 'recover'])->name('pricebands.recover');
+	Route::delete('/priceband-management/{id}', [PriceBandsController::class, 'destroy']);
+	Route::post('/priceband-management/recover/{id}', [PriceBandsController::class, 'recover']);
 
 	Route::get('/enterprise-management-register', [EnterprisesController::class, 'create']);
 	Route::get('/enterprise-management-update/{id}', [EnterprisesController::class, 'update']);
@@ -105,8 +105,8 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::post('/enterprise-management-new', [EnterprisesController::class, 'store']);
 	Route::get('/enterprise-management', [EnterprisesController::class, 'show']);
 	Route::get('/enterprise-management-removed', [EnterprisesController::class, 'showRemoved']);
-	Route::delete('/enterprise-management/{id}', [EnterprisesController::class, 'destroy'])->name('users.destroy');
-	Route::post('/enterprise-management/recover/{id}', [EnterprisesController::class, 'recover'])->name('users.recover');
+	Route::delete('/enterprise-management/{id}', [EnterprisesController::class, 'destroy']);
+	Route::post('/enterprise-management/recover/{id}', [EnterprisesController::class, 'recover']);
 });
 
 
