@@ -9,6 +9,7 @@ COPY . /var/www/html
 
 # Instale as dependências do Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN chown -R www-data:www-data /var/www/html
 RUN composer install --no-interaction --no-dev --prefer-dist --optimize-autoloader
 
 # Configure o servidor web Nginx
