@@ -4,10 +4,7 @@ FROM php:8.1-fpm-alpine
 WORKDIR /var/www/html
 
 # Instale as dependências necessárias
-RUN apt-get update && apt-get install -y \
-    zlib1g-dev \
-    libzip-dev \
-    unzip \
+RUN apk add --no-cache zlib-dev libzip-dev unzip \
     && docker-php-ext-install zip
 
 # Copie para o diretório de trabalho
@@ -34,5 +31,5 @@ RUN php artisan config:cache \
     && php artisan route:cache \
     && php artisan view:cache
 
-# Inicie o serviço do Nginx e do PHP-FPM usando o arquivo de script de inicialização
+# Execute o script de inicialização para iniciar o serviço do Nginx e do PHP-FPM
 CMD ["/start.sh"]
