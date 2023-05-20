@@ -1,34 +1,46 @@
-FROM php:7.4-fpm
+FROM php:8.1-fpm
 
 # Instalar dependências
-RUN apt-get update && apt-get install -y \
-    unzip \
-    libpq-dev \
-    libzip-dev
+RUN apt-get update \
+    && apt-get install -y \
+        unzip \
+        libpq-dev \
+        libonig-dev \
+        libxml2-dev \
+    && docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath opcache
 
-# Instalar extensões PHP necessárias
-RUN docker-php-ext-install pdo pdo_pgsql zip
-
-# Copiar arquivos do aplicativo para o contêiner
-COPY . /var/www/html
-
-# Definir o diretório de trabalho
+# Configurar o diretório de trabalho
 WORKDIR /var/www/html
 
-# Copiar o arquivo de configuração nginx-site.conf para o diretório de configuração do Nginx
+# Copiar arquivos do aplicativo
+COPY . /var/www/html
+
+# Copiar o arquivo de configuração do PHP
+COPY conf/php/php.ini /usr/local/etc/php/php.ini
+
+# Copiar o arquivo de configuração do Nginx
 COPY conf/nginx/nginx-site.conf /etc/nginx/conf.d/default.conf
 
-# Copiar o script de implantação para o contêiner
-COPY scripts/00-laravel-deploy.sh /var/www/html/scripts/00-laravel-deploy.sh
+# Instalar o Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Dar permissão de execução ao script de implantação
-RUN chmod +x /var/www/html/scripts/00-laravel-deploy.sh
+# Executar o Composer
+RUN composer global require hirak/prestissimo \
+    && composer install --no-dev --working-dir=/var/www/html
 
-# Executar o script de implantação durante a construção da imagem
-RUN /var/www/html/scripts/00-laravel-deploy.sh
+# Cachear configurações
+RUN php artisan config:cache
 
-# Expor a porta 80 para acesso HTTP
-EXPOSE 80
+# Cachear rotas
+RUN php artisan route:cache
 
-# Comando para iniciar o serviço do PHP-FPM e do Nginx
-CMD ["start.sh"]
+# Executar migrações
+RUN php artisan migrate --force
+
+# Configurar as permissões dos arquivos
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html/storage
+
+
+# Comando para iniciar o serviço do Nginx
+CMD ["nginx", "-g", "daemon off;"]
