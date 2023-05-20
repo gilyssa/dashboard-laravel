@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     libonig-dev \
     libxml2-dev \
-    php8.1-mysql \
+    php8.1-mysqli \
     nginx 
 
 # Configurar o diretório de trabalho
@@ -37,9 +37,6 @@ RUN php artisan migrate --force
 # Configurar as permissões dos arquivos
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage
-
-# Expor a porta 80 para acesso externo
-EXPOSE 80
 
 # Iniciar o serviço do Nginx e do PHP-FPM
 CMD service nginx start && php-fpm
