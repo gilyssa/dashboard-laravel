@@ -1,22 +1,35 @@
-FROM richarvey/nginx-php-fpm:1.7.2
+# Imagem base
+FROM php:8.1-fpm
 
-COPY . .
+# Atualizar lista de pacotes e instalar dependências
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        nginx \
+        unzip
 
-# Image config
-ENV SKIP_COMPOSER 1
-ENV WEBROOT /var/www/html/public
-ENV PHP_ERRORS_STDERR 1
-ENV RUN_SCRIPTS 1
-ENV REAL_IP_HEADER 1
+# Remover configuração padrão do Nginx
+RUN rm /etc/nginx/sites-enabled/default
 
-# Laravel config
-ENV APP_ENV production
-ENV APP_DEBUG false
-ENV LOG_CHANNEL stderr
+# Copiar arquivo de configuração do Nginx
+COPY conf/nginx/nginx-site.conf /etc/nginx/conf.d/default.conf
 
-# Allow composer to run as root
-ENV COMPOSER_ALLOW_SUPERUSER 1
+# Configurar diretório de trabalho
+WORKDIR /var/www/html
 
+# Copiar arquivos do aplicativo para o contêiner
+COPY . /var/www/html
+
+# Descompactar arquivos ZIP, se necessário
+# EXEMPLO: RUN unzip /var/www/html/arquivo.zip -d /var/www/html/
+
+# Permissões de pasta, se necessário
+# EXEMPLO: RUN chown -R www-data:www-data /var/www/html
+
+# Copiar arquivo start.sh para o contêiner
+COPY start.sh /start.sh
+
+# Permissões para o script start.sh
 RUN chmod +x /start.sh
 
-CMD ["/start.sh"]
+# Comandos para iniciar os serviços do PHP-FPM e Nginx
+CMD service php8.1-fpm start && /start.sh
