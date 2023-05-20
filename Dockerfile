@@ -22,8 +22,7 @@ COPY conf/nginx/nginx-site.conf /etc/nginx/conf.d/default.conf
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Executar o Composer
-RUN composer global require hirak/prestissimo \
-    && composer install --no-dev --working-dir=/var/www/html
+RUN composer install --no-dev --working-dir=/var/www/html
 
 # Cachear configurações
 RUN php artisan config:cache
