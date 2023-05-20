@@ -15,9 +15,6 @@ WORKDIR /var/www/html
 # Copiar arquivos do aplicativo
 COPY . /var/www/html
 
-# Copiar o arquivo de configuração do PHP
-COPY conf/php/php.ini /usr/local/etc/php/php.ini
-
 # Copiar o arquivo de configuração do Nginx
 COPY conf/nginx/nginx-site.conf /etc/nginx/conf.d/default.conf
 
