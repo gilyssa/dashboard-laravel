@@ -1,24 +1,22 @@
-FROM php:8.1-fpm-alpine
+FROM richarvey/nginx-php-fpm:1.7.2
 
-# Defina o diretório de trabalho
-WORKDIR /var/www/html
+COPY . .
 
-# Instale as dependências necessárias
-RUN apk add --no-cache zlib-dev libzip-dev unzip \
-    && docker-php-ext-install zip
+# Image config
+ENV SKIP_COMPOSER 1
+ENV WEBROOT /var/www/html/public
+ENV PHP_ERRORS_STDERR 1
+ENV RUN_SCRIPTS 1
+ENV REAL_IP_HEADER 1
 
-# Copie para o diretório de trabalho
-COPY ./ /var/www/html
+# Laravel config
+ENV APP_ENV production
+ENV APP_DEBUG false
+ENV LOG_CHANNEL stderr
 
-# Instale o Composer e execute para instalar as dependências do Laravel
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
-    && composer install --no-interaction --no-dev --prefer-dist --optimize-autoloader
+# Allow composer to run as root
+ENV COMPOSER_ALLOW_SUPERUSER 1
 
-# Execute os comandos para configurar o Laravel
-RUN php artisan config:cache \
-    && php artisan route:cache \
-    && php artisan view:cache
+RUN chmod +x /start.sh
 
-
-# Execute o serviço PHP-FPM para iniciar o servidor
-CMD ["php-fpm"]
+CMD ["/start.sh"]
