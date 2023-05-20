@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     libonig-dev \
     libxml2-dev \
-    php-mysql \
+    php8.1-mysql \
     nginx 
 
 # Configurar o diretório de trabalho
