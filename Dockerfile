@@ -1,13 +1,13 @@
-FROM laravel:8.1
+# Imagem base do PHP-FPM com Nginx
+FROM php:8.1-fpm
 
-# Instalar dependências
-RUN apt-get update \
-    && apt-get install -y \
-        unzip \
-        libpq-dev \
-        libonig-dev \
-        libxml2-dev \
-    && docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath opcache
+# Instalar dependências do sistema
+RUN apt-get update && apt-get install -y \
+    unzip \
+    libpq-dev \
+    libonig-dev \
+    libxml2-dev \
+    nginx
 
 # Configurar o diretório de trabalho
 WORKDIR /var/www/html
@@ -38,6 +38,8 @@ RUN php artisan migrate --force
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage
 
+# Expor a porta 80 para acesso externo
+EXPOSE 80
 
-# Comando para iniciar o serviço do Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Iniciar o serviço do Nginx e do PHP-FPM
+CMD service nginx start && php-fpm
