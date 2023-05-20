@@ -1,4 +1,4 @@
-FROM php:8.1-fpm
+FROM laravel:8.1
 
 # Instalar dependências
 RUN apt-get update \
