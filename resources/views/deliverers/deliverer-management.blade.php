@@ -9,9 +9,22 @@
                 <div class="card-header pb-0">
                     <div class="d-flex flex-row justify-content-between">
                         <div>
-                            <h5 class="mb-0">Empresas inativas</h5>
+                            <h5 class="mb-0">Todos as Entregadores</h5>
                         </div>
-                        <a href="{{ url('/enterprise-management')}}" class="btn bg-gradient-primary btn-sm mb-0" type="button">Voltar</a>
+                        @if ($userAccess === 'admin')
+                        <a href="{{ url('/deliverer-management-register')}}" class="btn bg-gradient-primary btn-sm mb-0 d-block d-sm-inline-block text-icon" type="button">
+                            <span class="icon">
+                                <i class="fas fa-plus text-white"></i>
+                            </span>
+                            <span class="text d-none d-sm-inline" style="width: 50%; height: 50%;">Cadastrar Entregador</span>
+                        </a>
+                        <a href="{{ url('/deliverer-management-removed')}}" class="btn bg-gradient-primary btn-sm mb-0 text-icon" type="button">
+                            <span class="icon">
+                                <i class="fas fa-trash text-white"></i>
+                            </span>
+                            <span class="text d-none d-sm-inline" style="width: 50%; height: 30%;">Entregadores Removidos</span>
+                        </a>
+                        @endif
                     </div>
                 </div>
                 <div class="card-body px-0 pt-0 pb-2">
@@ -26,7 +39,13 @@
                                         Nome
                                     </th>
                                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                                        status
+                                        Pix
+                                    </th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                        Identificação
+                                    </th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                        Status
                                     </th>
                                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                                         Criação
@@ -39,24 +58,33 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($enterprises as $enterprise)
+                                @foreach ($deliverers as $deliverer)
                                 <tr>
                                     <td class="ps-4">
-                                        <p class="text-xs font-weight-bold mb-0">{{ $enterprise['id'] }}</p>
+                                        <p class="text-xs font-weight-bold mb-0">{{ $deliverer['id'] }}</p>
                                     </td>
                                     <td class="text-center">
-                                        <p class="text-xs font-weight-bold mb-0">{{ $enterprise['name'] }}</p>
+                                        <p class="text-xs font-weight-bold mb-0">{{ $deliverer['name'] }}</p>
                                     </td>
                                     <td class="text-center">
-                                        <p class="text-xs font-weight-bold mb-0">{{ $enterprise['status'] ? 'Ativo' : 'Inativo' }}</p>
+                                        <p class="text-xs font-weight-bold mb-0">{{ $deliverer['pix'] }}</p>
                                     </td>
                                     <td class="text-center">
-                                        <span class="text-secondary text-xs font-weight-bold">{{ $enterprise['created_at'] }}</span>
+                                        <p class="text-xs font-weight-bold mb-0">{{ $deliverer['cpf_or_cnpj'] }}</p>
+                                    </td>
+                                    <td class="text-center">
+                                        <p class="text-xs font-weight-bold mb-0">{{ $deliverer['status'] ? 'Ativo' : 'Inativo' }}</p>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="text-secondary text-xs font-weight-bold">{{ $deliverer['created_at'] }}</span>
                                     </td>
                                     @if ($userAccess === 'admin')
                                     <td class="text-center">
+                                        <a class="mx-3" data-bs-toggle="tooltip" data-bs-original-title="Edit deliverer">
+                                            <i class="cursor-pointer fas fa-building text-secondary" onclick="updateDeliverer({{ $deliverer['id'] }});"></i>
+                                        </a>
                                         <span>
-                                            <i class="cursor-pointer fas fa-undo text-secondary" onclick="recoverCity('{{ $enterprise['id'] }}');"></i>
+                                            <i class="cursor-pointer fas fa-trash text-secondary" onclick="deleteDeliverer({{ $deliverer['id'] }});"></i>
                                         </span>
                                     </td>
                                     @endif
@@ -72,19 +100,19 @@
 </div>
 
 <!-- Modal de confirmação -->
-<div class="modal fade" id="recoverCityModal" tabindex="-1" aria-labelledby="recoverCityModalLabel" aria-hidden="true">
+<div class="modal fade" id="deleteDelivererModal" tabindex="-1" aria-labelledby="deleteDelivererModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="recoverCityModalLabel">Recuperar Cidade</h5>
+                <h5 class="modal-title" id="deleteDelivererModalLabel">Confirmar desativação do Entregador</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
             </div>
             <div class="modal-body">
-                Tem certeza de que deseja ativar a Cidade?
+                Tem certeza de que deseja desativar o Entregador?
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" id="confirmRecoverCity" class="btn btn-danger">Recuperar</button>
+                <button type="button" id="confirmDeleteDeliverer" class="btn btn-danger">Desativar</button>
             </div>
         </div>
     </div>
@@ -93,15 +121,15 @@
 
 @section('scripts')
 <script>
-    function recoverCity(userId) {
+    function deleteDeliverer(userId) {
         // Exibir o modal de confirmação
-        var modal = document.getElementById('recoverCityModal');
-        var modalConfirmBtn = document.getElementById('confirmRecoverCity');
+        var modal = document.getElementById('deleteDelivererModal');
+        var modalConfirmBtn = document.getElementById('confirmDeleteDeliverer');
         modal.addEventListener('show.bs.modal', function() {
             modalConfirmBtn.addEventListener('click', function() {
-                // Fazer uma requisição para chamar o método 'recover' do UserController
-                fetch('/enterprise-management/recover/' + userId, {
-                        method: 'POST',
+                // Fazer uma requisição para chamar o método 'destroy' do UserController
+                fetch('/deliverer-management/' + userId, {
+                        method: 'DELETE',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
                             'Content-Type': 'application/json'
@@ -117,19 +145,22 @@
                             location.reload();
                         } else {
                             // Tratar o erro de acordo com sua necessidade
-                            console.error('Erro ao recuperar o Cidade');
+                            console.error('Erro ao excluir o cidade');
                         }
                     })
                     .catch(error => {
-                        console.error('Erro ao recuperar o Cidade', error);
+                        console.error('Erro ao excluir o cidade', error);
                     });
             });
         });
         var bootstrapModal = new bootstrap.Modal(modal);
         bootstrapModal.show();
     }
+
+    function updateDeliverer(userId) {
+        window.location.href = '/deliverer-management-update/' + userId;
+    }
 </script>
 @endsection
-
 
 @endsection

@@ -9,10 +9,10 @@
         <div class="card z-index-0">
           <div class="card-header text-center pt-4">
             <img src="{{ asset('assets\img\icone-empresa.png') }}" width="90%" height="90%">
-            <h5>Cadastro de nova Empresa</h5>
+            <h5>Cadastro de novo Entregador</h5>
           </div>
           <div class="card-body">
-            <form role="form text-left" method="POST" action="/enterprise-management-new" id="pricebandForm">
+            <form role="form text-left" method="POST" action="/deliverer-management-new" id="pricebandForm">
               @csrf
               <div class="mb-3">
                 <input type="text" class="form-control" placeholder="Name" id="name" name="name" aria-label="Name" aria-describedby="name">
@@ -20,9 +20,21 @@
                 <p class="text-danger text-xs mt-2">{{ $message }}</p>
                 @enderror
               </div>
+              <div class="mb-3">
+                <input type="text" class="form-control" placeholder="Pix" id="pix" name="pix" aria-label="Pix" aria-describedby="pix">
+                @error('pix')
+                <p class="text-danger text-xs mt-2">{{ $message }}</p>
+                @enderror
+              </div>
+              <div class="mb-3">
+                <input type="text" class="form-control" placeholder="Cpf ou Cnpj" id="cnpj_or_cpf" name="cnpj_or_cpf" aria-label="Cpf ou Cnpj" aria-describedby="cnpj_or_cpf">
+                @error('cnpj_or_cpf')
+                <p class="text-danger text-xs mt-2">{{ $message }}</p>
+                @enderror
+              </div>
               <div class="text-center">
                 <button type="submit" class="btn bg-gradient-dark w-100 my-4 mb-2">Cadastrar</button>
-                <a href="/enterprise-management" class="btn bg-gradient-dark w-100 my-4 mb-2">Voltar</a>
+                <a href="/deliverer-management" class="btn bg-gradient-dark w-100 my-4 mb-2">Voltar</a>
               </div>
             </form>
           </div>
@@ -45,7 +57,7 @@
         <div class="alert alert-danger d-none text-white" role="alert" id="errorMessage"></div>
       </div>
       <div class="modal-footer">
-        <a href="/enterprise-management" type="button" class="btn btn-secondary">Voltar para tela anterior</a>
+        <a href="/deliverer-management" type="button" class="btn btn-secondary">Voltar para tela anterior</a>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
       </div>
     </div>

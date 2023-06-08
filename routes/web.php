@@ -9,6 +9,8 @@ use App\Http\Controllers\SessionsController;
 use App\Http\Controllers\CitiesController;
 use App\Http\Controllers\PriceBandsController;
 use App\Http\Controllers\EnterprisesController;
+use App\Http\Controllers\DeliverersController;
+
 
 
 use Illuminate\Http\Request;
@@ -29,7 +31,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => 'auth'], function () {
 
-    Route::get('/', [HomeController::class, 'home']);
+	Route::get('/', [HomeController::class, 'home']);
 	Route::get('dashboard', function () {
 		return view('dashboard');
 	})->name('dashboard');
@@ -50,15 +52,15 @@ Route::group(['middleware' => 'auth'], function () {
 		return view('tables');
 	})->name('tables');
 
-    Route::get('virtual-reality', function () {
+	Route::get('virtual-reality', function () {
 		return view('virtual-reality');
 	})->name('virtual-reality');
 
-    Route::get('static-sign-in', function () {
+	Route::get('static-sign-in', function () {
 		return view('static-sign-in');
 	})->name('sign-in');
 
-    Route::get('static-sign-up', function () {
+	Route::get('static-sign-up', function () {
 		return view('static-sign-up');
 	})->name('sign-up');
 
@@ -71,19 +73,19 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('/user-management-removed', [InfoUserController::class, 'showRemoved']);
 	Route::delete('/user-management/{id}', [InfoUserController::class, 'destroy'])->name('users.delete');
 	Route::post('/user-management/recover/{id}', [InfoUserController::class, 'recover'])->name('users.recover');
-    
+
 	Route::get('/logout', [SessionsController::class, 'destroy']);
 	Route::get('/login', function () {
 		return view('dashboard');
 	})->name('sign-up');
 
-	Route::get('/register', [RegisterController::class, 'create']);
 	Route::post('/register', [RegisterController::class, 'store']);
+	Route::get('/register', [RegisterController::class, 'create']);
 
-	
+
 	Route::get('/city-management-register', [CitiesController::class, 'create']);
 	Route::get('/city-management-update/{id}', [CitiesController::class, 'update']);
-	Route::post('/city-management-edit/{id}' , [CitiesController::class, 'updateCity']);
+	Route::post('/city-management-edit/{id}', [CitiesController::class, 'updateCity']);
 	Route::post('/city-management-new', [CitiesController::class, 'store']);
 	Route::get('/city-management', [CitiesController::class, 'show']);
 	Route::get('/city-management-removed', [CitiesController::class, 'showRemoved']);
@@ -92,7 +94,7 @@ Route::group(['middleware' => 'auth'], function () {
 
 	Route::get('/priceband-management-register', [PriceBandsController::class, 'create']);
 	Route::get('/priceband-management-update/{id}', [PriceBandsController::class, 'update']);
-	Route::post('/priceband-management-edit/{id}' , [PriceBandsController::class, 'updatepriceband']);
+	Route::post('/priceband-management-edit/{id}', [PriceBandsController::class, 'updatepriceband']);
 	Route::post('/priceband-management-new', [PriceBandsController::class, 'store']);
 	Route::get('/priceband-management', [PriceBandsController::class, 'show']);
 	Route::get('/priceband-management-removed', [PriceBandsController::class, 'showRemoved']);
@@ -101,27 +103,35 @@ Route::group(['middleware' => 'auth'], function () {
 
 	Route::get('/enterprise-management-register', [EnterprisesController::class, 'create']);
 	Route::get('/enterprise-management-update/{id}', [EnterprisesController::class, 'update']);
-	Route::post('/enterprise-management-edit/{id}' , [EnterprisesController::class, 'updateenterprise']);
+	Route::post('/enterprise-management-edit/{id}', [EnterprisesController::class, 'updateenterprise']);
 	Route::post('/enterprise-management-new', [EnterprisesController::class, 'store']);
 	Route::get('/enterprise-management', [EnterprisesController::class, 'show']);
 	Route::get('/enterprise-management-removed', [EnterprisesController::class, 'showRemoved']);
 	Route::delete('/enterprise-management/{id}', [EnterprisesController::class, 'destroy']);
 	Route::post('/enterprise-management/recover/{id}', [EnterprisesController::class, 'recover']);
+
+	Route::get('/deliverer-management-register', [DeliverersController::class, 'create']);
+	Route::get('/deliverer-management-update/{id}', [DeliverersController::class, 'update']);
+	Route::post('/deliverer-management-edit/{id}', [DeliverersController::class, 'updatedeliverer']);
+	Route::post('/deliverer-management-new', [DeliverersController::class, 'store']);
+	Route::get('/deliverer-management', [DeliverersController::class, 'show']);
+	Route::get('/deliverer-management-removed', [DeliverersController::class, 'showRemoved']);
+	Route::delete('/deliverer-management/{id}', [DeliverersController::class, 'destroy']);
+	Route::post('/deliverer-management/recover/{id}', [DeliverersController::class, 'recover']);
 });
 
 
 
 
 Route::group(['middleware' => 'guest'], function () {
-    Route::get('/login', [SessionsController::class, 'create']);
-    Route::post('/session', [SessionsController::class, 'store']);
+	Route::get('/login', [SessionsController::class, 'create']);
+	Route::post('/session', [SessionsController::class, 'store']);
 	Route::get('/login/forgot-password', [ResetController::class, 'create']);
 	Route::post('/forgot-password', [ResetController::class, 'sendEmail']);
 	Route::get('/reset-password/{token}', [ResetController::class, 'resetPass'])->name('password.reset');
 	Route::post('/reset-password', [ChangePasswordController::class, 'changePassword'])->name('password.update');
-
 });
 
 Route::get('/login', function () {
-    return view('session/login-session');
+	return view('session/login-session');
 })->name('login');
