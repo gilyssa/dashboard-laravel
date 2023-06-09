@@ -15,7 +15,7 @@ class InfoUserController extends Controller
     {
 
         $userAccess = Auth::user()->access;
-        return view('users/user-profile', [ 'userAccess' =>  $userAccess]);
+        return view('users/user-profile', ['userAccess' =>  $userAccess]);
     }
 
     public function updateUser($id)
@@ -34,29 +34,29 @@ class InfoUserController extends Controller
             'access' => []
         ]);
 
-        
-        $attributes['password'] = bcrypt($attributes['password'] );
 
-        if(Auth::user()->access === 'admin'){
-            User::where('id',Auth::user()->id)
-            ->update([
-                'name'    => $attributes['name'],
-                'email' => $attributes['email'],
-                'password' => $attributes['password'],
-                'access' => $attributes['access']
-            ]);
-        }else {
-            User::where('id',Auth::user()->id)
-            ->update([
-                'name'    => $attributes['name'],
-                'email' => $attributes['email'],
-                'password' => $attributes['password'],
-            ]);
+        $attributes['password'] = bcrypt($attributes['password']);
+
+        if (Auth::user()->access === 'admin') {
+            User::where('id', Auth::user()->id)
+                ->update([
+                    'name'    => $attributes['name'],
+                    'email' => $attributes['email'],
+                    'password' => $attributes['password'],
+                    'access' => $attributes['access']
+                ]);
+        } else {
+            User::where('id', Auth::user()->id)
+                ->update([
+                    'name'    => $attributes['name'],
+                    'email' => $attributes['email'],
+                    'password' => $attributes['password'],
+                ]);
         }
 
 
 
-        return redirect('/user-profile')->with('success','Alteração realizada!');
+        return redirect('/user-profile')->with('success', 'Alteração realizada!');
     }
 
     public function store($id)
@@ -65,31 +65,36 @@ class InfoUserController extends Controller
         $attributes = request()->validate([
             'name' => ['required', 'max:50'],
             'email' => ['required', 'email', 'max:50', Rule::unique('users')->ignore($id)],
-            'password' => ['required', 'min:5', 'max:20'],
             'access' => []
         ]);
 
-        
-        $attributes['password'] = bcrypt($attributes['password'] );
-    
-        User::where('id', $id)
-        ->update([
-            'name'    => $attributes['name'],
-            'email' => $attributes['email'],
-            'password' => $attributes['password'],
-            'access' => $attributes['access'],
-        ]);
+        if (isset($attributes['password'])) {
+            $attributes['password'] = bcrypt($attributes['password']);
+            User::where('id', $id)
+                ->update([
+                    'name'    => $attributes['name'],
+                    'email' => $attributes['email'],
+                    'password' => $attributes['password'],
+                    'access' => $attributes['access'],
+                ]);
+        } else {
+            User::where('id', $id)
+                ->update([
+                    'name'    => $attributes['name'],
+                    'email' => $attributes['email'],
+                    'access' => $attributes['access'],
+                ]);
+        };
 
-
-        return redirect('/user-management')->with('success','Alteração realizada!');
+        return redirect('/user-management')->with('success', 'Alteração realizada!');
     }
 
     public function show()
-    {   
+    {
         $userAccess = Auth::user()->access;
         $users = User::where('status', 1)->get();
         $arrayUsers = [];
-    
+
         foreach ($users as $user) {
             $arrayUsers[] = [
                 'id' => $user->id,
@@ -100,16 +105,16 @@ class InfoUserController extends Controller
                 'created_at' => $user->created_at
             ];
         }
-        
+
         return view('users/user-management', ['users' => $arrayUsers, 'userAccess' =>  $userAccess]);
     }
-    
+
     public function showRemoved()
-    {   
+    {
         $userAccess = Auth::user()->access;
         $users = User::where('status', 0)->get();
         $arrayUsers = [];
-    
+
         foreach ($users as $user) {
             $arrayUsers[] = [
                 'id' => $user->id,
@@ -120,23 +125,25 @@ class InfoUserController extends Controller
                 'created_at' => $user->created_at
             ];
         }
-        
+
         return view('users/user-management-removed', ['users' => $arrayUsers, 'userAccess' =>  $userAccess]);
     }
-    
 
 
-    public function destroy($id){
+
+    public function destroy($id)
+    {
         User::where('id', $id)
-        ->update([
-            'status'=> false,
-        ]);
+            ->update([
+                'status' => false,
+            ]);
     }
 
-    public function recover($id){
+    public function recover($id)
+    {
         User::where('id', $id)
-        ->update([
-            'status'=> true,
-        ]);
+            ->update([
+                'status' => true,
+            ]);
     }
 }

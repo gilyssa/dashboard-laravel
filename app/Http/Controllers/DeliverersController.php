@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Deliverer;
 use Illuminate\Support\Facades\Auth;
+use App\Validators\CPForCNPJValidator;
 
 class DeliverersController extends Controller
 {
@@ -19,7 +20,7 @@ class DeliverersController extends Controller
                 'id' => $deliverer->id,
                 'name' => $deliverer->name,
                 'pix' => $deliverer->pix,
-                'cpf_or_cnpj' => $deliverer->cpf_or_cnpj,
+                'cnpj_or_cpf' => $deliverer->cnpj_or_cpf,
                 'status' => $deliverer->status,
                 'created_at' => $deliverer->created_at
             ];
@@ -39,7 +40,7 @@ class DeliverersController extends Controller
                 'id' => $deliverer->id,
                 'name' => $deliverer->name,
                 'pix' => $deliverer->pix,
-                'cpf_or_cnpj' => $deliverer->cpf_or_cnpj,
+                'cnpj_or_cpf' => $deliverer->cnpj_or_cpf,
                 'status' => $deliverer->status,
                 'created_at' => $deliverer->created_at
             ];
@@ -64,23 +65,29 @@ class DeliverersController extends Controller
             return redirect('/dashboard');
         }
 
-        dd('passei aqui');
-
         // Validação dos atributos
         $attributes = request()->validate([
             'name' => ['required'],
             'pix' => [],
-            'cpf_or_cnpj' => ['required'],
+            'cnpj_or_cpf' => ['required'],
         ]);
 
+        // Verificar se o cnpj_or_cpf já existe no banco de dados
+        $existingDelivererDocument = Deliverer::where('cnpj_or_cpf', $attributes['cnpj_or_cpf'])->first();
+        $existingDelivererName = Deliverer::where('name', $attributes['name'])->first();
 
-        $deliverer = Deliverer::firstOrCreate(['cpf_or_cnpj' => $attributes['cpf_or_cnpj']]);
-
-        if ($deliverer->wasRecentlyCreated) {
-            return response()->json(['success' => 'Entregador Cadastrado.']);
-        } else {
-            return response()->json(['error' => 'Entregador já existe, verifique nas inativas e reative.']);
+        if ($existingDelivererDocument || $existingDelivererName) {
+            return response()->json(['error' => 'Entregador já existe, verifique se o nome ou o documento já não está nos entregadores inativos']);
         }
+
+        // Validar o CPF ou CNPJ
+        if (!CPForCNPJValidator::validateDocument($attributes['cnpj_or_cpf'])) {
+            return response()->json(['error' => 'CPF ou CNPJ inválido']);
+        }
+
+        //dd($attributes);
+        Deliverer::create($attributes);
+        return response()->json(['success' => 'Entregador Cadastrado.']);
     }
 
 
@@ -89,26 +96,40 @@ class DeliverersController extends Controller
         $delivererEdit = Deliverer::where('id', $id)->first();
         return view('deliverers/deliverer-management-update', ['delivererEdit' => $delivererEdit]);
     }
-
     public function updateDeliverer($id)
     {
         $attributes = request()->validate([
             'name' => ['required', 'max:50'],
             'pix' => [],
-            'cpf_or_cnpj' => ['required', 'max:14'],
-
+            'cnpj_or_cpf' => ['required'],
         ]);
 
-        Deliverer::where('id', $id)
-            ->update([
-                'name'    => $attributes['name'],
-                'pix' => $attributes['pix'],
-                'cpf_or_cnpj' => $attributes['cpf_or_cnpj']
-            ]);
+        // Verificar se o nome ou CPF/CNPJ já existem, excluindo o entregador atual
+        $existingDeliverer = Deliverer::where(function ($query) use ($attributes) {
+            $query->where('name', $attributes['name'])
+                ->orWhere('cnpj_or_cpf', $attributes['cnpj_or_cpf']);
+        })
+            ->where('id', '<>', $id)
+            ->first();
 
+        if ($existingDeliverer) {
+            return back()->withErrors(['error' => 'Entregador já existe, verifique se o nome ou o documento já não está nos entregadores inativos']);
+        }
+
+        // Validar o CPF ou CNPJ
+        if (!CPForCNPJValidator::validateDocument($attributes['cnpj_or_cpf'])) {
+            return back()->withErrors(['error' => 'CPF ou CNPJ inválido.']);
+        }
+
+        Deliverer::where('id', $id)->update([
+            'name' => $attributes['name'],
+            'pix' => $attributes['pix'],
+            'cnpj_or_cpf' => $attributes['cnpj_or_cpf']
+        ]);
 
         return redirect('/deliverer-management')->with('success', 'Alteração realizada!');
     }
+
 
     public function destroy($id)
     {

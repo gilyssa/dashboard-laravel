@@ -18,7 +18,7 @@ class Deliverer extends Model
      *
      * @var array
      */
-    protected $fillable = ['name', 'status', 'pix', 'cpf_or_cnpj'];
+    protected $fillable = ['name', 'status', 'pix', 'cnpj_or_cpf'];
 
     /**
      * Indicates if the model should be timestamped.

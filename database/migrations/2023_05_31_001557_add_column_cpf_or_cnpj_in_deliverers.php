@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('deliverers', function (Blueprint $table) {
-            if (!Schema::hasColumn('deliverers', 'cpf_or_cnpj')) {
-                $table->string('cpf_or_cnpj')->after('created_at');
+            if (!Schema::hasColumn('deliverers', 'cnpj_or_cpf')) {
+                $table->string('cnpj_or_cpf')->after('created_at');
             }
         });
     }
