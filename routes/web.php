@@ -10,6 +10,9 @@ use App\Http\Controllers\CitiesController;
 use App\Http\Controllers\PriceBandsController;
 use App\Http\Controllers\EnterprisesController;
 use App\Http\Controllers\DeliverersController;
+use App\Http\Controllers\PostingsController;
+use App\Http\Controllers\EnterprisePriceRangesController;
+
 
 
 
@@ -118,6 +121,22 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('/deliverer-management-removed', [DeliverersController::class, 'showRemoved']);
 	Route::delete('/deliverer-management/{id}', [DeliverersController::class, 'destroy']);
 	Route::post('/deliverer-management/recover/{id}', [DeliverersController::class, 'recover']);
+
+	Route::get('/posting-management-register', [PostingsController::class, 'create']);
+	Route::get('/posting-management-update/{id}', [PostingsController::class, 'update']);
+	Route::post('/posting-management-edit/{id}', [PostingsController::class, 'updateposting']);
+	Route::post('/posting-management-new', [PostingsController::class, 'store']);
+	Route::get('/posting-management', [PostingsController::class, 'show'])->name('postings.show');
+	Route::get('/posting-management-removed', [PostingsController::class, 'showRemoved']);
+	Route::delete('/posting-management/{id}', [PostingsController::class, 'destroy']);
+	Route::post('/posting-management/recover/{id}', [PostingsController::class, 'recover']);
+
+	Route::get('/enterprise-price-range-management-register', [EnterprisePriceRangesController::class, 'create']);
+	Route::post('/enterprise-price-range-management-new', [EnterprisePriceRangesController::class, 'store']);
+	Route::get('/enterprise-price-range-management', [EnterprisePriceRangesController::class, 'show']);
+	Route::get('/enterprise-price-range-management-removed', [EnterprisePriceRangesController::class, 'showRemoved']);
+	Route::delete('/enterprise-price-range-management/{id}', [EnterprisePriceRangesController::class, 'destroy']);
+	Route::post('/enterprise-price-range-management/recover/{id}', [EnterprisePriceRangesController::class, 'recover']);
 });
 
 

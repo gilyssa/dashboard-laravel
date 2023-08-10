@@ -8,10 +8,10 @@
                     <div class="card-header pb-0">
                         <div class="flex-row">
                             <div>
-                                <h5 class="mb-0">Todos as Faixas de Preço</h5>
+                                <h5 class="mb-0">Todos os Lançamentos</h5>
                             </div>
                             @if ($userAccess === 'admin')
-                                <a href="{{ url('/priceband-management-register') }}"
+                                <a href="{{ url('/posting-management-register') }}"
                                     class="btn bg-gradient-primary btn-sm mb-0 d-block d-sm-inline-block text-icon"
                                     type="button">
                                     <span class="icon">
@@ -19,7 +19,7 @@
                                     </span>
                                     <span class="text d-none d-sm-inline" style="width: 50%; height: 50%;">Cadastrar</span>
                                 </a>
-                                <a href="{{ url('/priceband-management-removed') }}"
+                                <a href="{{ url('/posting-management-removed') }}"
                                     class="btn bg-gradient-primary btn-sm mb-0 text-icon" type="button">
                                     <span class="icon">
                                         <i class="fas fa-trash text-white"></i>
@@ -27,18 +27,21 @@
                                     <span class="text d-none d-sm-inline" style="width: 50%; height: 30%;">Faixas de Preço
                                         Removidas</span>
                                 </a>
-                                <a href="{{ url('/enterprise-price-range-management') }}"
-                                    class="btn bg-gradient-primary btn-sm mb-0 text-icon" type="button">
-                                    <span class="icon">
-                                        <i class="fas fa-sync text-white"></i>
-                                    </span>
-                                    <span class="text d-none d-sm-inline" style="width: 50%; height: 30%;">Atrelamento de
-                                        faixa</span>
-                                </a>
                             @endif
                         </div>
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="startDate" class="form-label">Data de Início:</label>
+                                <input type="date" class="form-control" id="startDate">
+                            </div>
+                            <div class="mb-3">
+                                <label for="endDate" class="form-label">Data de Fim:</label>
+                                <input type="date" class="form-control" id="endDate">
+                            </div>
+                            <button class="btn btn-primary" onclick="filterTableByDate()">Filtrar</button>
+                        </div>
                         <div class="table-responsive p-0">
                             <table class="table align-items-center mb-0" style="overflow: auto;">
                                 <thead>
@@ -48,15 +51,35 @@
                                         </th>
                                         <th
                                             class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                                            Valor
+                                            Entregador
                                         </th>
                                         <th
                                             class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                                            Status
+                                            Usuário
                                         </th>
                                         <th
                                             class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                                            Criação
+                                            Faixa de Preço
+                                        </th>
+                                        <th
+                                            class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                            Nota
+                                        </th>
+                                        <th
+                                            class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                            Pacotes
+                                        </th>
+                                        <th
+                                            class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                            Preço
+                                        </th>
+                                        <th
+                                            class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                            Tipo
+                                        </th>
+                                        <th
+                                            class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                            Data
                                         </th>
                                         @if ($userAccess !== 'admin')
                                             <th
@@ -67,32 +90,47 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($pricebands as $priceband)
-                                        <tr>
+                                    @foreach ($postings as $posting)
+                                        <tr id="row{{ $posting['id'] }}"> <!-- Add an ID for each row -->
                                             <td class="ps-4">
-                                                <p class="text-xs font-weight-bold mb-0">{{ $priceband['id'] }}</p>
+                                                <p class="text-xs font-weight-bold mb-0">{{ $posting['id'] }}</p>
                                             </td>
                                             <td class="text-center">
-                                                <p class="text-xs font-weight-bold mb-0">{{ $priceband['value'] }}</p>
+                                                <p class="text-xs font-weight-bold mb-0">{{ $posting['deliverer'] }}</p>
+                                            </td>
+                                            <td class="text-center">
+                                                <p class="text-xs font-weight-bold mb-0">{{ $posting['user'] }}</p>
+                                            </td>
+                                            <td class="text-center">
+                                                <p class="text-xs font-weight-bold mb-0">{{ $posting['priceRange'] }}</p>
                                             </td>
                                             <td class="text-center">
                                                 <p class="text-xs font-weight-bold mb-0">
-                                                    {{ $priceband['status'] ? 'Ativo' : 'Inativo' }}</p>
+                                                    {{ $posting['isNote'] == 1 ? 'Sim' : 'Não' }}</p>
                                             </td>
                                             <td class="text-center">
-                                                <span
-                                                    class="text-secondary text-xs font-weight-bold">{{ $priceband['created_at'] }}</span>
+                                                <p class="text-xs font-weight-bold mb-0">{{ $posting['quantity'] }}</p>
+                                            </td>
+                                            <td class="text-center">
+                                                <p class="text-xs font-weight-bold mb-0">{{ $posting['currentPrice'] }}</p>
+                                            </td>
+                                            <td class="text-center">
+                                                <p class="text-xs font-weight-bold mb-0">{{ strtoupper($posting['type']) }}
+                                                </p>
+                                            </td>
+                                            <td class="text-center">
+                                                <p class="text-xs font-weight-bold mb-0">{{ $posting['date'] }}</p>
                                             </td>
                                             @if ($userAccess === 'admin')
                                                 <td class="text-center">
                                                     <a class="mx-3" data-bs-toggle="tooltip"
-                                                        data-bs-original-title="Edit priceband">
+                                                        data-bs-original-title="Edit posting">
                                                         <i class="cursor-pointer fas fa-dollar-sign text-secondary"
-                                                            onclick="updatePriceBand({{ $priceband['id'] }});"></i>
+                                                            onclick="updatePosting({{ $posting['id'] }});"></i>
                                                     </a>
                                                     <span>
                                                         <i class="cursor-pointer fas fa-trash text-secondary"
-                                                            onclick="deletePriceBand({{ $priceband['id'] }});"></i>
+                                                            onclick="deletePosting({{ $posting['id'] }});"></i>
                                                     </span>
                                                 </td>
                                             @endif
@@ -108,36 +146,47 @@
     </div>
 
     <!-- Modal de confirmação -->
-    <div class="modal fade" id="deletePriceBandModal" tabindex="-1" aria-labelledby="deletePriceBandModalLabel"
+    <div class="modal fade" id="deletePostingModal" tabindex="-1" aria-labelledby="deletePostingModalLabel"
         aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deletePriceBandModalLabel">Confirmar desativação da Faixa de Preço</h5>
+                    <h5 class="modal-title" id="deletePostingModalLabel">Confirmar desativação do Lançamento</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
                 <div class="modal-body">
-                    Tem certeza de que deseja desativar a Faixa de Preço?
+                    Tem certeza de que deseja desativar esse Lançamento?
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" id="confirmDeletePriceBand" class="btn btn-danger">Desativar</button>
+                    <button type="button" id="confirmDeleteposting" class="btn btn-danger">Desativar</button>
                 </div>
             </div>
         </div>
     </div>
 
-
 @section('scripts')
     <script>
-        function deletePriceBand(userId) {
+        function filterTableByDate() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            const url = new URL("{{ route('postings.show') }}");
+            url.searchParams.set('start_date', startDate);
+            url.searchParams.set('end_date', endDate);
+
+            // Redirect to the filtered URL
+            window.location.href = url;
+        }
+
+        function deletePosting(userId) {
             // Exibir o modal de confirmação
-            var modal = document.getElementById('deletePriceBandModal');
-            var modalConfirmBtn = document.getElementById('confirmDeletePriceBand');
+            var modal = document.getElementById('deletePostingModal');
+            var modalConfirmBtn = document.getElementById('confirmDeletePosting');
             modal.addEventListener('show.bs.modal', function() {
                 modalConfirmBtn.addEventListener('click', function() {
                     // Fazer uma requisição para chamar o método 'destroy' do UserController
-                    fetch('/priceband-management/' + userId, {
+                    fetch('/Posting-management/' + userId, {
                             method: 'DELETE',
                             headers: {
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -154,11 +203,11 @@
                                 location.reload();
                             } else {
                                 // Tratar o erro de acordo com sua necessidade
-                                console.error('Erro ao excluir o cidade');
+                                console.error('Erro ao excluir o lançamento');
                             }
                         })
                         .catch(error => {
-                            console.error('Erro ao excluir o cidade', error);
+                            console.error('Erro ao excluir o lançamento', error);
                         });
                 });
             });
@@ -166,8 +215,8 @@
             bootstrapModal.show();
         }
 
-        function updatePriceBand(userId) {
-            window.location.href = '/priceband-management-update/' + userId;
+        function updatePosting(userId) {
+            window.location.href = '/posting-management-update/' + userId;
         }
     </script>
 @endsection
