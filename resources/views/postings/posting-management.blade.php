@@ -19,14 +19,6 @@
                                     </span>
                                     <span class="text d-none d-sm-inline" style="width: 50%; height: 50%;">Cadastrar</span>
                                 </a>
-                                <a href="{{ url('/posting-management-removed') }}"
-                                    class="btn bg-gradient-primary btn-sm mb-0 text-icon" type="button">
-                                    <span class="icon">
-                                        <i class="fas fa-trash text-white"></i>
-                                    </span>
-                                    <span class="text d-none d-sm-inline" style="width: 50%; height: 30%;">Faixas de Preço
-                                        Removidas</span>
-                                </a>
                             @endif
                         </div>
                     </div>
@@ -34,11 +26,11 @@
                         <div class="card-body">
                             <div class="mb-3">
                                 <label for="startDate" class="form-label">Data de Início:</label>
-                                <input type="date" class="form-control" id="startDate">
+                                <input type="text" class="form-control" id="startDate">
                             </div>
                             <div class="mb-3">
                                 <label for="endDate" class="form-label">Data de Fim:</label>
-                                <input type="date" class="form-control" id="endDate">
+                                <input type="text" class="form-control" id="endDate">
                             </div>
                             <button class="btn btn-primary" onclick="filterTableByDate()">Filtrar</button>
                         </div>
@@ -159,14 +151,23 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" id="confirmDeleteposting" class="btn btn-danger">Desativar</button>
+                    <button type="button" id="confirmDeletePosting" class="btn btn-danger">Desativar</button>
                 </div>
             </div>
         </div>
     </div>
 
 @section('scripts')
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
+        $(function() {
+            $("#startDate, #endDate").datepicker({
+                dateFormat: "dd/mm/yy"
+            });
+        });
+
         function filterTableByDate() {
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
@@ -182,12 +183,13 @@
         function deletePosting(userId) {
             // Exibir o modal de confirmação
             var modal = document.getElementById('deletePostingModal');
+            console.log(modal);
             var modalConfirmBtn = document.getElementById('confirmDeletePosting');
             modal.addEventListener('show.bs.modal', function() {
                 modalConfirmBtn.addEventListener('click', function() {
                     // Fazer uma requisição para chamar o método 'destroy' do UserController
-                    fetch('/Posting-management/' + userId, {
-                            method: 'DELETE',
+                    fetch('/posting-management/' + userId, {
+                            method: 'POST',
                             headers: {
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
                                 'Content-Type': 'application/json'

@@ -18,6 +18,10 @@ class Posting extends Model
         'type',
         'updated_id',
         'removed_id',
+        'enterprise_price_range_id', 
+        'currentPrice',
+        'isNote',
+        'date'
     ];
 
     public function enterprise()
@@ -44,4 +48,10 @@ class Posting extends Model
     {
         return $this->belongsTo(User::class, 'removed_id');
     }
+
+    public function enterprisePriceRange()
+{
+    return $this->belongsTo(EnterprisePriceRange::class, 'enterprise_price_range_id');
 }
+}
+

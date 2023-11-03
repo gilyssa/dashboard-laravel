@@ -130,7 +130,7 @@
                 modalConfirmBtn.addEventListener('click', function() {
                     // Fazer uma requisição para chamar o método 'destroy' do UserController
                     fetch('/enterprise-management/' + userId, {
-                            method: 'DELETE',
+                            method: 'POST',
                             headers: {
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
                                 'Content-Type': 'application/json'
