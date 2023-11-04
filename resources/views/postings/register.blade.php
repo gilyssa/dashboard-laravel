@@ -94,7 +94,7 @@
                                 <div class="text-center">
                                     <div class="btn-group">
                                         <button type="button" onclick="preventDuplicated()"
-                                            class="btn btn-dark btn-lg mx-1">Cadastrar</button>
+                                            class="btn btn-dark btn-lg mx-1" id="submit">Cadastrar</button>
                                         <a href="/posting-management"
                                             class="btn btn-dark btn-lg mx-1 d-none d-sm-block">Voltar</a>
                                     </div>
@@ -165,13 +165,15 @@
         public
 
         function preventDuplicated() {
+            $("#submit").prop("disabled", true);
+
             const deliverer = document.getElementById('deliverer').value;
             const date = document.getElementById('date').value;
             const enterprisePriceRange = document.getElementById('enterprisePriceRange').value;
             const quantity = document.getElementById('quantity').value;
             const type = document.getElementById('type').value;
             const user = document.getElementById('user').value;
-            const isNote = document.getElementById('isNote').value;
+            const isNote = document.getElementById('isNote').checked;
 
             const formDataObject = {
                 deliverer,
@@ -198,18 +200,16 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data);
-
                     if (data.duplicated) {
                         document.getElementById('duplicatedMessage').textContent =
                             'Existe um lançamento similar a esse, tem certeza que quer inserir?';
                         document.getElementById('duplicatedMessage').classList.remove('d-none');
                         $('#resultModalDuplicated').modal('show');
+                        $("#submit").prop("disabled", false);
+
                     } else {
                         createNewPosting();
                     }
-
-
                 })
                 .catch(error => {
                     console.error(error);
@@ -218,6 +218,8 @@
 
         function createNewPosting() {
             $('#resultModalDuplicated').modal('hide');
+            $("#submit").prop("disabled", true);
+
 
             const deliverer = document.getElementById('deliverer').value;
             const date = document.getElementById('date').value;
@@ -225,7 +227,7 @@
             const quantity = document.getElementById('quantity').value;
             const type = document.getElementById('type').value;
             const user = document.getElementById('user').value;
-            const isNote = document.getElementById('isNote').value;
+            const isNote = document.getElementById('isNote').checked;
 
             const formDataObject = {
                 deliverer,
@@ -261,8 +263,8 @@
                     }
                 })
                 .then(data => {
+                    $("#submit").prop("disabled", false);
 
-                    console.log(data);
                     if (data && data.success) {
                         document.getElementById('successMessage').textContent = data.success;
                         document.getElementById('successMessage').classList.remove('d-none');
@@ -272,8 +274,6 @@
                         document.getElementById('errorMessage').classList.remove('d-none');
                         document.getElementById('successMessage').classList.add('d-none');
                     } else {
-                        console.log('bati aqui', data);
-
                         document.getElementById('errorMessage').textContent =
                             'Não foi possível realizar o lançamento verifique os dados inseridos.';
                         document.getElementById('errorMessage').classList.remove('d-none');
@@ -284,6 +284,12 @@
                     resultModal.show();
                 })
                 .catch(error => {
+                    document.getElementById('errorMessage').textContent =
+                        'Não foi possível realizar o lançamento verifique os dados inseridos.';
+                    document.getElementById('errorMessage').classList.remove('d-none');
+                    document.getElementById('successMessage').classList.add('d-none');
+
+                    $("#submit").prop("disabled", false);
                     console.error('Ocorreu um erro:', error);
                 });
         }

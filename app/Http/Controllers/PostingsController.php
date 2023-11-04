@@ -123,7 +123,7 @@ class PostingsController extends Controller
                 'deliverer_id' => $attributes['deliverer'],
                 'user_id' => $attributes['user'],
                 'enterprise_price_range_id' => $attributes['enterprisePriceRange'],
-                'isNote' => !empty($attributes['isNote']) ?? 0,
+                'isNote' => $attributes['isNote'] == 'true' ? 1 : 0,
                 'quantity' => $attributes['quantity'],
                 'type' => $attributes['type'],
                 'date' => $attributes['date'],
@@ -144,6 +144,16 @@ class PostingsController extends Controller
         $date = $request->date;
         $type = $request->type;
 
+        if ($request->update) {
+            $existingPosting = Posting::where('enterprise_price_range_id', $enterprisePriceRange)
+                ->where('deliverer_id', $deliverer)
+                ->where('date', $date)
+                ->where('type', $type)
+                ->get();
+
+            return response()->json(['duplicated' => !empty($existingPosting) && count($existingPosting) > 1]);
+        }
+
         $existingPosting = Posting::where('enterprise_price_range_id', $enterprisePriceRange)
             ->where('deliverer_id', $deliverer)
             ->where('date', $date)
@@ -156,41 +166,63 @@ class PostingsController extends Controller
 
     public function update($id)
     {
-        $delivererEdit = Posting::where('id', $id)->first();
-        return view('postings/posting-management-update', ['delivererEdit' => $delivererEdit]);
+        if (Auth::user() && Auth::user()->access !== 'admin') {
+            return redirect('/dashboard');
+        }
+
+        $postingEdit = Posting::where('id', $id)->first();
+        $deliverers = Deliverer::where('status', 1)->select('id', 'name')->get();
+        $user = Auth::user();
+        $enterprisePriceRanges = EnterprisePriceRange::select(
+            'enterprise_price_ranges.id',
+            DB::raw("CONCAT('Faixa ', enterprise_price_ranges.id, ' - ', enterprises.name, ' - ', cities.name, ' - R$', FORMAT(price_bands.value, 2)) as formatted_data")
+        )
+            ->leftJoin('enterprises', 'enterprise_price_ranges.enterprise_id', '=', 'enterprises.id')
+            ->leftJoin('price_bands', 'enterprise_price_ranges.price_band_id', '=', 'price_bands.id')
+            ->leftJoin('cities', 'enterprise_price_ranges.city_id', '=', 'cities.id')
+            ->where('enterprise_price_ranges.status', 1)
+            ->get();
+
+
+        return view('postings.posting-management-update', ['deliverers' => $deliverers, 'user' =>  $user, 'enterprisePriceRanges' => $enterprisePriceRanges, 'postingEdit' => $postingEdit]);
     }
-    public function updateDeliverer($id)
+    public function updatePosting($id)
     {
-        $attributes = request()->validate([
-            'name' => ['required', 'max:50'],
-            'pix' => [],
-            'cnpj_or_cpf' => ['required'],
-        ]);
+        try {
+            $attributes = request()->validate([
+                'deliverer' => ['required'],
+                'user' => ['required'],
+                'enterprisePriceRange' => ['required'],
+                'isNote' => [],
+                'quantity' => ['required', 'numeric'],
+                'type' => ['required'],
+                'date' => ['required'],
+            ]);
 
-        // Verificar se o nome ou CPF/CNPJ já existem, excluindo o entregador atual
-        $existingDeliverer = Posting::where(function ($query) use ($attributes) {
-            $query->where('name', $attributes['name'])
-                ->orWhere('cnpj_or_cpf', $attributes['cnpj_or_cpf']);
-        })
-            ->where('id', '<>', $id)
-            ->first();
+            $price = EnterprisePriceRange::leftJoin('price_bands as pb', 'enterprise_price_ranges.price_band_id', '=',  'pb.id')
+                ->where('enterprise_price_ranges.id', $attributes['enterprisePriceRange'])
+                ->pluck('pb.value')
+                ->first();
 
-        if ($existingDeliverer) {
-            return back()->withErrors(['error' => 'Entregador já existe, verifique se o nome ou o documento já não está nos entregadores inativos']);
+            if (!strpos($attributes['date'], '-')) {
+                $attributes['date'] = Carbon::createFromFormat('d/m/Y', $attributes['date'])->format('Y-m-d');
+            }
+
+            Posting::where('id', $id)->update([
+                'deliverer_id' => $attributes['deliverer'],
+                'user_id' => $attributes['user'],
+                'enterprise_price_range_id' => $attributes['enterprisePriceRange'],
+                'isNote' => $attributes['isNote'] == 'true' ? 1 : 0,
+                'quantity' => $attributes['quantity'],
+                'type' => $attributes['type'],
+                'date' => $attributes['date'],
+                'currentPrice' => $price,
+            ]);
+
+            return response()->json(['success' => 'Alteração Realizada.']);
+        } catch (ValidationException) {
+            return response()->json(['error' => 'Verifique se preencheu todos os campos corretamente.']);
         }
-
-        // Validar o CPF ou CNPJ
-        if (!CPForCNPJValidator::validateDocument($attributes['cnpj_or_cpf'])) {
-            return back()->withErrors(['error' => 'CPF ou CNPJ inválido.']);
-        }
-
-        Posting::where('id', $id)->update([
-            'name' => $attributes['name'],
-            'pix' => $attributes['pix'],
-            'cnpj_or_cpf' => $attributes['cnpj_or_cpf']
-        ]);
-
-        return redirect('/posting-management')->with('success', 'Alteração realizada!');
     }
 
 

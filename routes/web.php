@@ -126,7 +126,7 @@ Route::group(['middleware' => 'auth'], function () {
 
 	Route::get('/posting-management-register', [PostingsController::class, 'create'])->name('register');
 	Route::get('/posting-management-update/{id}', [PostingsController::class, 'update']);
-	Route::post('/posting-management-edit/{id}', [PostingsController::class, 'updateposting']);
+	Route::post('/posting-management-edit/{id}', [PostingsController::class, 'updatePosting'])->name('postingEdit');;
 	Route::post('/posting-management-new', [PostingsController::class, 'store'])->name('postingManagementNew');
 	Route::get('/posting-management', [PostingsController::class, 'show'])->name('postings.show');
 	Route::get('/posting-management-removed', [PostingsController::class, 'showRemoved']);

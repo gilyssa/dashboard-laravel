@@ -26,11 +26,11 @@
                         <div class="card-body">
                             <div class="mb-3">
                                 <label for="startDate" class="form-label">Data de Início:</label>
-                                <input type="text" class="form-control" id="startDate">
+                                <input type="text" class="form-control" id="startDate" readonly>
                             </div>
                             <div class="mb-3">
                                 <label for="endDate" class="form-label">Data de Fim:</label>
-                                <input type="text" class="form-control" id="endDate">
+                                <input type="text" class="form-control" id="endDate" readonly>
                             </div>
                             <button class="btn btn-primary" onclick="filterTableByDate()">Filtrar</button>
                         </div>
