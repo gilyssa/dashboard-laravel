@@ -133,14 +133,12 @@
                 </a>
             </li>
             <li class="nav-item pb-2">
-                <a class="nav-link {{ Request::is('fechamentos') ? 'active' : '' }}"
-                    href="{{ url('fechamentos') }}">
+                <a class="nav-link {{ Request::is('closures') ? 'active' : '' }}" href="{{ url('closures') }}">
                     <div
                         class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i
-                            class="fas fa-chart-line {{ Request::is('fechamentos') ? 'text-white' : 'text-dark' }}"></i>
+                        <i class="fas fa-chart-line {{ Request::is('closures') ? 'text-white' : 'text-dark' }}"></i>
                     </div>
-                    <span class="nav-link-text ms-1">Fechamentos</span>
+                    <span class="nav-link-text ms-1">Controle</span>
                 </a>
             </li>
 

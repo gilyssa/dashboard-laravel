@@ -8,7 +8,7 @@
                     <div class="card-header pb-0">
                         <div class="d-flex flex-row justify-content-between">
                             <div>
-                                <h5 class="mb-0">Todos as Cidades</h5>
+                                <h5 class="mb-0">Todas as Cidades</h5>
                             </div>
                             @if ($userAccess === 'admin')
                                 <a href="{{ url('/city-management-register') }}"

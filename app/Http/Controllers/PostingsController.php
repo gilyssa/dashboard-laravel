@@ -119,6 +119,16 @@ class PostingsController extends Controller
                 ->pluck('pb.value')
                 ->first();
 
+            if (!strpos($attributes['date'], '-')) {
+                $attributes['date'] = Carbon::createFromFormat('d/m/Y', $attributes['date'])->format('Y-m-d');
+            }
+
+            if ($attributes['type'] == 'insucesso') {
+                $existingShipment = Posting::where('deliverer_id', $attributes['deliverer'])->where('type', 'carregamento')->where('date', $attributes['date'])->first();
+
+                if (empty($existingShipment)) return response()->json(['error' => 'Você não pode lançar um insucesso sem um carregamento para essa data.']);
+            }
+
             $data = [
                 'deliverer_id' => $attributes['deliverer'],
                 'user_id' => $attributes['user'],
@@ -129,6 +139,7 @@ class PostingsController extends Controller
                 'date' => $attributes['date'],
                 'currentPrice' => $price,
             ];
+
 
             Posting::create($data);
             return response()->json(['success' => 'Lançamento Cadastrado.']);

@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\ChangePasswordController;
-use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InfoUserController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ResetController;
@@ -12,6 +11,7 @@ use App\Http\Controllers\EnterprisesController;
 use App\Http\Controllers\DeliverersController;
 use App\Http\Controllers\PostingsController;
 use App\Http\Controllers\EnterprisePriceRangesController;
+use App\Http\Controllers\ClosuresController;
 
 
 
@@ -140,6 +140,8 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('/enterprise-price-range-management-removed', [EnterprisePriceRangesController::class, 'showRemoved']);
 	Route::post('/enterprise-price-range-management/{id}', [EnterprisePriceRangesController::class, 'destroy']);
 	Route::post('/enterprise-price-range-management/recover/{id}', [EnterprisePriceRangesController::class, 'recover']);
+
+	Route::get('/closures', [ClosuresController::class, 'show'])->name('closures');
 });
 
 
