@@ -32,6 +32,8 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
+                                            <input type="text" class="form-control" id="fixedValue" name="fixedValue"
+                                                placeholder="Valor Fixo" style="display: none;">
                                             <select class="form-control" id="enterprisePriceRange"
                                                 name="enterprisePriceRange" aria-label="enterprisePriceRange"
                                                 aria-describedby="enterprisePriceRange" required>
@@ -70,6 +72,9 @@
                                                     Insucesso</option>
                                                 <option value="coleta"
                                                     {{ $postingEdit->type == 'coleta' ? 'selected' : '' }}>Coleta
+                                                </option>
+                                                <option value="entrega"
+                                                    {{ $postingEdit->type == 'entrega' ? 'selected' : '' }}>Entrega
                                                 </option>
                                             </select>
                                             @error('type')
@@ -162,6 +167,17 @@
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
+        $(document).ready(function() {
+            $('#type').change(function() {
+                if ($(this).val() == 'entrega') {
+                    $('#enterprisePriceRange').hide();
+                    $('#fixedValue').show();
+                } else {
+                    $('#enterprisePriceRange').show();
+                    $('#fixedValue').hide();
+                }
+            });
+        });
         $(function() {
             $("#date").datepicker({
                 dateFormat: "dd/mm/yy"

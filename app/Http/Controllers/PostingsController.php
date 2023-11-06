@@ -6,6 +6,7 @@ use App\Models\Posting;
 use App\Models\Deliverer;
 use App\Models\User;
 use App\Models\EnterprisePriceRange;
+use App\Models\Enterprise;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -59,7 +60,7 @@ class PostingsController extends Controller
                 'id' => $posting->id,
                 'deliverer' => $delivererName,
                 'user' => $userName,
-                'priceRange' => $priceRangeEnterprise . ' - ' . $priceRangeCity,
+                'priceRange' => $posting->enterprise_price_range_id ? $priceRangeEnterprise . ' - ' . $priceRangeCity : $posting->enterprise,
                 'isNote' => $posting->isNote,
                 'quantity' => $posting->quantity,
                 'currentPrice' => $posting->currentPrice,
@@ -78,20 +79,24 @@ class PostingsController extends Controller
             return redirect('/dashboard');
         }
 
-        $deliverers = Deliverer::where('status', 1)->select('id', 'name')->get();
+        $deliverers = Deliverer::where('status', 1)->select('id', 'name')->orderBy('name')->get();
+        $enterprises =
+            Enterprise::where('status', 1)->select('id', 'name')->orderBy('name')->get();
         $user = Auth::user();
         $enterprisePriceRanges = EnterprisePriceRange::select(
             'enterprise_price_ranges.id',
-            DB::raw("CONCAT('Faixa ', enterprise_price_ranges.id, ' - ', enterprises.name, ' - ', cities.name, ' - R$', FORMAT(price_bands.value, 2)) as formatted_data")
+            DB::raw("CONCAT(enterprises.name, ' - ', cities.name, ' - R$', FORMAT(price_bands.value, 2)) as formatted_data")
         )
             ->leftJoin('enterprises', 'enterprise_price_ranges.enterprise_id', '=', 'enterprises.id')
             ->leftJoin('price_bands', 'enterprise_price_ranges.price_band_id', '=', 'price_bands.id')
             ->leftJoin('cities', 'enterprise_price_ranges.city_id', '=', 'cities.id')
             ->where('enterprise_price_ranges.status', 1)
+            ->orderBy('enterprises.name')
+            ->orderBy('cities.name')
             ->get();
 
 
-        return view('postings.register', ['deliverers' => $deliverers, 'user' =>  $user, 'enterprisePriceRanges' => $enterprisePriceRanges]);
+        return view('postings.register', ['deliverers' => $deliverers, 'user' =>  $user, 'enterprisePriceRanges' => $enterprisePriceRanges, 'enterprises' => $enterprises]);
     }
 
 
@@ -106,11 +111,13 @@ class PostingsController extends Controller
             $attributes = request()->validate([
                 'deliverer' => ['required'],
                 'user' => ['required'],
-                'enterprisePriceRange' => ['required'],
+                'enterprisePriceRange' => [],
                 'isNote' => [],
                 'quantity' => ['required', 'numeric'],
                 'type' => ['required'],
                 'date' => ['required'],
+                'fixedValue' => [],
+                'enterprise' => [],
             ]);
 
 
@@ -123,10 +130,31 @@ class PostingsController extends Controller
                 $attributes['date'] = Carbon::createFromFormat('d/m/Y', $attributes['date'])->format('Y-m-d');
             }
 
+            if (isset($attributes['fixedValue'])) {
+                $attributes['fixedValue'] = str_replace(',', '.', $attributes['fixedValue']);
+            }
+
             if ($attributes['type'] == 'insucesso') {
                 $existingShipment = Posting::where('deliverer_id', $attributes['deliverer'])->where('type', 'carregamento')->where('date', $attributes['date'])->first();
 
                 if (empty($existingShipment)) return response()->json(['error' => 'Você não pode lançar um insucesso sem um carregamento para essa data.']);
+            }
+
+            if (isset($attributes['fixedValue'])) {
+                $data = [
+                    'deliverer_id' => $attributes['deliverer'],
+                    'user_id' => $attributes['user'],
+                    'isNote' => $attributes['isNote'] == 'true' ? 1 : 0,
+                    'quantity' => $attributes['quantity'],
+                    'type' => $attributes['type'],
+                    'date' => $attributes['date'],
+                    'currentPrice' => $attributes['fixedValue'],
+                    'enterprise' => $attributes['enterprise']
+                ];
+
+
+                Posting::create($data);
+                return response()->json(['success' => 'Lançamento Cadastrado.']);
             }
 
             $data = [
@@ -182,18 +210,19 @@ class PostingsController extends Controller
         }
 
         $postingEdit = Posting::where('id', $id)->first();
-        $deliverers = Deliverer::where('status', 1)->select('id', 'name')->get();
+        $deliverers = Deliverer::where('status', 1)->select('id', 'name')->orderBy('name')->get();
         $user = Auth::user();
         $enterprisePriceRanges = EnterprisePriceRange::select(
             'enterprise_price_ranges.id',
-            DB::raw("CONCAT('Faixa ', enterprise_price_ranges.id, ' - ', enterprises.name, ' - ', cities.name, ' - R$', FORMAT(price_bands.value, 2)) as formatted_data")
+            DB::raw("CONCAT(enterprises.name, ' - ', cities.name, ' - R$', FORMAT(price_bands.value, 2)) as formatted_data")
         )
             ->leftJoin('enterprises', 'enterprise_price_ranges.enterprise_id', '=', 'enterprises.id')
             ->leftJoin('price_bands', 'enterprise_price_ranges.price_band_id', '=', 'price_bands.id')
             ->leftJoin('cities', 'enterprise_price_ranges.city_id', '=', 'cities.id')
             ->where('enterprise_price_ranges.status', 1)
+            ->orderBy('enterprises.name')
+            ->orderBy('cities.name')
             ->get();
-
 
         return view('postings.posting-management-update', ['deliverers' => $deliverers, 'user' =>  $user, 'enterprisePriceRanges' => $enterprisePriceRanges, 'postingEdit' => $postingEdit]);
     }
@@ -203,7 +232,7 @@ class PostingsController extends Controller
             $attributes = request()->validate([
                 'deliverer' => ['required'],
                 'user' => ['required'],
-                'enterprisePriceRange' => ['required'],
+                'enterprisePriceRange' => [],
                 'isNote' => [],
                 'quantity' => ['required', 'numeric'],
                 'type' => ['required'],
