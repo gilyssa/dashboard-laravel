@@ -211,6 +211,8 @@ class PostingsController extends Controller
 
         $postingEdit = Posting::where('id', $id)->first();
         $deliverers = Deliverer::where('status', 1)->select('id', 'name')->orderBy('name')->get();
+        $enterprises =
+            Enterprise::where('status', 1)->select('id', 'name')->orderBy('name')->get();
         $user = Auth::user();
         $enterprisePriceRanges = EnterprisePriceRange::select(
             'enterprise_price_ranges.id',
@@ -224,7 +226,7 @@ class PostingsController extends Controller
             ->orderBy('cities.name')
             ->get();
 
-        return view('postings.posting-management-update', ['deliverers' => $deliverers, 'user' =>  $user, 'enterprisePriceRanges' => $enterprisePriceRanges, 'postingEdit' => $postingEdit]);
+        return view('postings.posting-management-update', ['deliverers' => $deliverers, 'user' =>  $user, 'enterprisePriceRanges' => $enterprisePriceRanges, 'postingEdit' => $postingEdit, 'enterprises' => $enterprises]);
     }
     public function updatePosting($id)
     {
@@ -237,6 +239,8 @@ class PostingsController extends Controller
                 'quantity' => ['required', 'numeric'],
                 'type' => ['required'],
                 'date' => ['required'],
+                'fixedValue' => ['numeric'],
+                'enterprise' => [],
             ]);
 
             $price = EnterprisePriceRange::leftJoin('price_bands as pb', 'enterprise_price_ranges.price_band_id', '=',  'pb.id')
@@ -246,6 +250,22 @@ class PostingsController extends Controller
 
             if (!strpos($attributes['date'], '-')) {
                 $attributes['date'] = Carbon::createFromFormat('d/m/Y', $attributes['date'])->format('Y-m-d');
+            }
+
+            if (isset($attributes['fixedValue'])) {
+                $attributes['fixedValue'] = str_replace(',', '.', $attributes['fixedValue']);
+                Posting::where('id', $id)->update([
+                    'deliverer_id' => $attributes['deliverer'],
+                    'user_id' => $attributes['user'],
+                    'enterprise' => $attributes['enterprise'],
+                    'isNote' => $attributes['isNote'] == 'true' ? 1 : 0,
+                    'quantity' => $attributes['quantity'],
+                    'type' => $attributes['type'],
+                    'date' => $attributes['date'],
+                    'currentPrice' => $attributes['fixedValue'],
+                ]);
+
+                return response()->json(['success' => 'Alteração Realizada.']);
             }
 
             Posting::where('id', $id)->update([

@@ -33,7 +33,8 @@
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <input type="text" class="form-control" id="fixedValue" name="fixedValue"
-                                                placeholder="Valor Fixo" style="display: none;">
+                                                placeholder="Valor Fixo" style="display: none;"
+                                                value="{{ $postingEdit->currentPrice }}">
                                             <select class="form-control" id="enterprisePriceRange"
                                                 name="enterprisePriceRange" aria-label="enterprisePriceRange"
                                                 aria-describedby="enterprisePriceRange" required>
@@ -97,9 +98,20 @@
                                                 Marcar como nota
                                             </label>
                                         </div>
-
                                     </div>
-
+                                    <div class="col-md-6">
+                                        <select class="form-control" id="enterprise" name="enterprise"
+                                            style="display: none;
+                                                aria-label="enterprise"
+                                            aria-describedby="enterprise">
+                                            <option value="">Empresa</option>
+                                            @foreach ($enterprises as $enterprise)
+                                                <option value="{{ $enterprise->name }}"
+                                                    {{ $postingEdit->enterprise == $enterprise->name ? 'selected' : '' }}>
+                                                    {{ $enterprise->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                 </div>
                                 <div class="mb-3">
                                     <input type="hidden" name="user" id="user" value="{{ $user->id }}">
@@ -167,17 +179,23 @@
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
+        function toggleElementsBasedOnType() {
+            if ($('#type').val() == 'entrega') {
+                $('#enterprisePriceRange').hide();
+                $('#fixedValue').show();
+                $('#enterprise').show();
+            } else {
+                $('#enterprisePriceRange').show();
+                $('#fixedValue').hide();
+                $('#enterprise').hide();
+            }
+        }
+
         $(document).ready(function() {
-            $('#type').change(function() {
-                if ($(this).val() == 'entrega') {
-                    $('#enterprisePriceRange').hide();
-                    $('#fixedValue').show();
-                } else {
-                    $('#enterprisePriceRange').show();
-                    $('#fixedValue').hide();
-                }
-            });
+            toggleElementsBasedOnType();
+            $('#type').change(toggleElementsBasedOnType);
         });
+
         $(function() {
             $("#date").datepicker({
                 dateFormat: "dd/mm/yy"
@@ -202,7 +220,9 @@
                 type,
                 user,
                 isNote,
-                update
+                update,
+                fixedValue,
+                enterprise
             };
 
             const formData = new FormData();
@@ -243,6 +263,7 @@
         function editPosting() {
             $('#resultModalDuplicated').modal('hide');
             $("#save").prop("disabled", true);
+            let formDataObject = {};
 
             const deliverer = document.getElementById('deliverer').value;
             const date = document.getElementById('date').value;
@@ -251,16 +272,32 @@
             const type = document.getElementById('type').value;
             const user = document.getElementById('user').value;
             const isNote = document.getElementById('isNote').checked;
+            const fixedValue = document.getElementById('fixedValue').value;
+            const enterprise = document.getElementById('enterprise').value;
 
-            const formDataObject = {
-                deliverer,
-                date,
-                enterprisePriceRange,
-                quantity,
-                type,
-                user,
-                isNote
-            };
+            if (type == 'entrega') {
+                formDataObject = {
+                    deliverer,
+                    date,
+                    enterprisePriceRange,
+                    quantity,
+                    type,
+                    user,
+                    isNote,
+                    fixedValue,
+                    enterprise
+                };
+            } else {
+                formDataObject = {
+                    deliverer,
+                    date,
+                    enterprisePriceRange,
+                    quantity,
+                    type,
+                    user,
+                    isNote
+                };
+            }
 
             const formData = new FormData();
             for (const key in formDataObject) {
