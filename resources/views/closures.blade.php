@@ -33,14 +33,20 @@
                             @error('deliverer')
                                 <p class="text-danger text-xs mt-2">{{ $message }}</p>
                             @enderror
-                            <button class="btn btn-primary" onclick="filterTableByDate()">Filtrar</button>
+                            <button class="btn btn-primary" id="filter" onclick="filterTableByDate()">Filtrar</button>
                         </div>
+
+
                         <div class="table-responsive p-0">
                             <table class="table align-items-center mb-0" style="overflow: auto;">
                                 <thead>
                                     <tr>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                                             Nr Lançamento
+                                        </th>
+                                        <th
+                                            class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                            Tipo
                                         </th>
                                         <th
                                             class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
@@ -87,10 +93,14 @@
                                                 <p class="text-xs font-weight-bold mb-0">{{ $closure['id'] }}</p>
                                             </td>
                                             <td class="text-center">
+                                                <p class="text-xs font-weight-bold mb-0">{{ $closure['type'] }}</p>
+                                            </td>
+                                            <td class="text-center">
                                                 <p class="text-xs font-weight-bold mb-0">{{ $closure['deliverer'] }}</p>
                                             </td>
                                             <td class="text-center">
-                                                <p class="text-xs font-weight-bold mb-0">{{ $closure['priceRange'] }}</p>
+                                                <p class="text-xs font-weight-bold mb-0">{{ $closure['priceRange'] }}
+                                                </p>
                                             </td>
                                             <td class="text-center">
                                                 <p class="text-xs font-weight-bold mb-0">
@@ -100,22 +110,31 @@
                                                 <p class="text-xs font-weight-bold mb-0">{{ $closure['quantity'] }}</p>
                                             </td>
                                             <td class="text-center">
-                                                <p class="text-xs font-weight-bold mb-0">{{ $closure['quantity'] }}</p>
+                                                <p class="text-xs font-weight-bold mb-0">{{ $closure['failures'] }}</p>
                                             </td>
                                             <td class="text-center">
-                                                <p class="text-xs font-weight-bold mb-0">{{ $closure['currentPrice'] }}</p>
+                                                <p class="text-xs font-weight-bold mb-0">
+                                                    {{ 'R$ ' . number_format($closure['currentPrice'], 2, ',', '.') }}
+                                                </p>
                                             </td>
                                             <td class="text-center">
                                                 <p class="text-xs font-weight-bold mb-0">{{ $closure['date'] }}</p>
                                             </td>
                                             <td class="text-center">
-                                                <p class="text-xs font-weight-bold mb-0">{{ $closure['currentPrice'] }}</p>
+                                                <p class="text-xs font-weight-bold mb-0">
+                                                    {{ 'R$ ' . number_format($closure['total'], 2, ',', '.') }}</p>
                                             <td class="text-center">
                                                 <p class="text-xs font-weight-bold mb-0">{{ $closure['pix'] }}</p>
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+                    <div class="pr-3">
+                        <div class="d-flex justify-content-end m-3">
+                            <h4>Valor Final:
+                                {{ 'R$ ' . number_format($totalEnd, 2, ',', '.') }}</h4>
                         </div>
                     </div>
                 </div>
@@ -136,56 +155,19 @@
         });
 
         function filterTableByDate() {
+            $("#filter").prop("disabled", true);
+
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
+            const deliverer = document.getElementById('deliverer').value;
 
             const url = new URL("{{ route('closures') }}");
             url.searchParams.set('start_date', startDate);
             url.searchParams.set('end_date', endDate);
+            url.searchParams.set('deliverer', deliverer);
 
             // Redirect to the filtered URL
             window.location.href = url;
-        }
-
-        function deleteClosure(userId) {
-            // Exibir o modal de confirmação
-            var modal = document.getElementById('deleteClosureModal');
-            console.log(modal);
-            var modalConfirmBtn = document.getElementById('confirmDeleteClosure');
-            modal.addEventListener('show.bs.modal', function() {
-                modalConfirmBtn.addEventListener('click', function() {
-                    // Fazer uma requisição para chamar o método 'destroy' do UserController
-                    fetch('/closure-management/' + userId, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Content-Type': 'application/json'
-                            }
-                        })
-                        .then(response => {
-                            if (response.ok) {
-                                // Fechar o modal
-                                var bootstrapModal = bootstrap.Modal.getInstance(modal);
-                                bootstrapModal.hide();
-
-                                // Atualizar a página ou fazer qualquer outra ação desejada
-                                location.reload();
-                            } else {
-                                // Tratar o erro de acordo com sua necessidade
-                                console.error('Erro ao excluir o lançamento');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Erro ao excluir o lançamento', error);
-                        });
-                });
-            });
-            var bootstrapModal = new bootstrap.Modal(modal);
-            bootstrapModal.show();
-        }
-
-        function updateClosure(userId) {
-            window.location.href = '/closure-management-update/' + userId;
         }
     </script>
 @endsection

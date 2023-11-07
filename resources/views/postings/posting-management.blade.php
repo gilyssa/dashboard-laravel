@@ -32,7 +32,7 @@
                                 <label for="endDate" class="form-label">Data de Fim:</label>
                                 <input type="text" class="form-control" id="endDate" readonly>
                             </div>
-                            <button class="btn btn-primary" onclick="filterTableByDate()">Filtrar</button>
+                            <button class="btn btn-primary" id="filter" onclick="filterTableByDate()">Filtrar</button>
                         </div>
                         <div class="table-responsive p-0">
                             <table class="table align-items-center mb-0" style="overflow: auto;">
@@ -169,6 +169,7 @@
         });
 
         function filterTableByDate() {
+            $("#filter").prop("disabled", true);
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
 
