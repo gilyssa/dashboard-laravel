@@ -31,15 +31,21 @@ class PostingsController extends Controller
 
     public function show(Request $request)
     {
+        $deliverers = Deliverer::where('status', 1)->select('id', 'name')->orderby('name')->get();
         $userAccess = Auth::user()->access;
         $postingsQuery = Posting::query();
 
         $startDate = $this->convertDate($request->input('start_date'));
         $endDate = $this->convertDate($request->input('end_date'));
+        $deliverer = $request->deliverer;
 
 
         if ($startDate && $endDate) {
             $postingsQuery->whereBetween('date', [$startDate, $endDate]);
+        }
+
+        if ($deliverer) {
+            $postingsQuery->where('deliverer_id', $deliverer);
         }
 
         $postings = $postingsQuery->where('removed', 0)->get();
@@ -69,7 +75,7 @@ class PostingsController extends Controller
             ];
         }
 
-        return view('postings.posting-management', ['postings' => $arrayPostings, 'userAccess' =>  $userAccess]);
+        return view('postings.posting-management', ['postings' => $arrayPostings, 'userAccess' =>  $userAccess, 'deliverers' => $deliverers]);
     }
 
 
@@ -136,8 +142,11 @@ class PostingsController extends Controller
 
             if ($attributes['type'] == 'insucesso') {
                 $existingShipment = Posting::where('deliverer_id', $attributes['deliverer'])->where('type', 'carregamento')->where('date', $attributes['date'])->first();
+                $existingFailure = Posting::where('deliverer_id', $attributes['deliverer'])->where('type', 'insucesso')->where('date', $attributes['date'])->where('enterprise_price_range_id', $attributes['enterprisePriceRange'])->first();
 
                 if (empty($existingShipment)) return response()->json(['error' => 'Você não pode lançar um insucesso sem um carregamento para essa data.']);
+
+                if (!empty($existingFailure)) return response()->json(['error' => 'Já existe um insucesso para esse carregamento, edite ou remova na tela de lançamento.']);
             }
 
             if (isset($attributes['fixedValue'])) {

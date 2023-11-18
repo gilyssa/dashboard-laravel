@@ -74,7 +74,7 @@ class ClosuresController extends Controller
                 ->value('cities.name');
 
             if ($posting->type == 'carregamento') {
-                $failures = Posting::where('type', 'insucesso')->where('date', $posting->date)->where('enterprise_price_range_id', $posting->enterprise_price_range_id)->value('quantity') ?? 0;
+                $failures = Posting::where('type', 'insucesso')->where('date', $posting->date)->where('enterprise_price_range_id', $posting->enterprise_price_range_id)->where('removed', 0)->value('quantity') ?? 0;
                 $total = ($posting->quantity - $failures) * $posting->currentPrice;
             } else {
                 $failures = 0;

@@ -32,6 +32,17 @@
                                 <label for="endDate" class="form-label">Data de Fim:</label>
                                 <input type="text" class="form-control" id="endDate" readonly>
                             </div>
+                            <select class="form-control mb-3" id="deliverer" name="deliverer" aria-label="deliverer"
+                                aria-describedby="deliverer">
+                                <option value="">Entregador</option>
+                                @foreach ($deliverers as $deliverer)
+                                    <option value="{{ $deliverer->id }}">
+                                        {{ $deliverer->name }}</option>
+                                @endforeach
+                            </select>
+                            @error('deliverer')
+                                <p class="text-danger text-xs mt-2">{{ $message }}</p>
+                            @enderror
                             <button class="btn btn-primary" id="filter" onclick="filterTableByDate()">Filtrar</button>
                         </div>
                         <div class="table-responsive p-0">
@@ -172,10 +183,12 @@
             $("#filter").prop("disabled", true);
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
+            const deliverer = document.getElementById('deliverer').value;
 
             const url = new URL("{{ route('postings.show') }}");
             url.searchParams.set('start_date', startDate);
             url.searchParams.set('end_date', endDate);
+            url.searchParams.set('deliverer', deliverer);
 
             // Redirect to the filtered URL
             window.location.href = url;
